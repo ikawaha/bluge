@@ -10,7 +10,7 @@ func Analyzer() *analysis.Analyzer {
 		CharFilters: []analysis.CharFilter{
 			NormalizeFilter(),
 		},
-		Tokenizer: Tokenizer(),
+		Tokenizer: Tokenizer(StopTags()),
 		TokenFilters: []analysis.TokenFilter{
 			token.NewLowerCaseFilter(),
 			StopWordsFilter(),

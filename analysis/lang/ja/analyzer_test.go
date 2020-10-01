@@ -7,42 +7,56 @@ import (
 	"github.com/blugelabs/bluge/analysis"
 )
 
-func TestSoraniAnalyzer(t *testing.T) {
+func TestJapaneseAnalyzer(t *testing.T) {
 	tests := []struct {
+		title string
 		input  []byte
 		output analysis.TokenStream
 	}{
-		// stop word removal
 		{
-			input: []byte("ئەم پیاوە"),
+			title: "tokenize",
+			input: []byte("関西国際空港"),
 			output: analysis.TokenStream{
 				&analysis.Token{
-					Term:         []byte("پیاو"),
+					Term:         []byte("関西"),
+					PositionIncr: 1,
+					Start:        0,
+					End:          6,
+					Type: analysis.Ideographic,
+				},
+				&analysis.Token{
+					Term:         []byte("国際"),
+					PositionIncr: 1,
+					Start:        6,
+					End:          12,
+					Type: analysis.Ideographic,
+				},
+				&analysis.Token{
+					Term:         []byte("空港"),
+					PositionIncr: 1,
+					Start:        12,
+					End:          18,
+					Type: analysis.Ideographic,
+				},
+			},
+		},
+		{
+			title: "filtered results",
+			input: []byte("私は鰻"),
+			output: analysis.TokenStream{
+				&analysis.Token{
+					Term:         []byte("私"),
+					PositionIncr: 1,
+					Start:        0,
+					End:          3,
+					Type: analysis.Ideographic,
+				},
+				&analysis.Token{
+					Term:         []byte("鰻"),
 					PositionIncr: 2,
-					Start:        7,
-					End:          17,
-				},
-			},
-		},
-		{
-			input: []byte("پیاوە"),
-			output: analysis.TokenStream{
-				&analysis.Token{
-					Term:         []byte("پیاو"),
-					PositionIncr: 1,
-					Start:        0,
-					End:          10,
-				},
-			},
-		},
-		{
-			input: []byte("پیاو"),
-			output: analysis.TokenStream{
-				&analysis.Token{
-					Term:         []byte("پیاو"),
-					PositionIncr: 1,
-					Start:        0,
-					End:          8,
+					Start:        6,
+					End:          9,
+					Type: analysis.Ideographic,
 				},
 			},
 		},
@@ -50,9 +64,11 @@ func TestSoraniAnalyzer(t *testing.T) {
 
 	analyzer := Analyzer()
 	for _, test := range tests {
-		actual := analyzer.Analyze(test.input)
-		if !reflect.DeepEqual(actual, test.output) {
-			t.Errorf("expected %v, got %v", test.output, actual)
-		}
+		t.Run(test.title, func(t *testing.T) {
+			actual := analyzer.Analyze(test.input)
+			if !reflect.DeepEqual(actual, test.output) {
+				t.Errorf("want %+v, got %+v", test.output, actual)
+			}
+		})
 	}
 }
